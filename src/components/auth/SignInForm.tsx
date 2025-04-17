@@ -6,6 +6,7 @@ import Button from "@/components/ui/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
+import { useSession, signIn, signOut } from "next-auth/react"
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -60,6 +61,7 @@ export default function SignInForm() {
                 </svg>
                 Sign in with Google
               </button>
+              <button onClick={() => signIn('github')}>Sign in with github</button>
               <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                 <svg
                   width="21"
