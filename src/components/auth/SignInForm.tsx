@@ -6,7 +6,7 @@ import Button from "@/components/ui/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
-import { useSession, signIn, signOut } from "next-auth/react"
+import { signIn} from "next-auth/react"
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
