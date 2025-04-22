@@ -15,7 +15,19 @@ const handler = NextAuth({
             clientId: process.env.GOOGLE_CLIENT_ID as string,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
           })
-    ]
+    ],
+    callbacks: {
+        async signIn({ user, account, profile }) {
+          if (user.email?.includes("sam.sys.hk@gmail.com")) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        async redirect({ url, baseUrl }) {
+          return "/";
+        },
+      },
 })
 
 export { handler as GET, handler as POST }

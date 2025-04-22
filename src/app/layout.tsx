@@ -1,9 +1,10 @@
+"use client";
 import { Outfit } from 'next/font/google';
 import './globals.css';
 
 import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
-import SessionWrapper from '../components/SessionWrapper'
+import { SessionProvider } from "next-auth/react"
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -17,11 +18,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${outfit.className} dark:bg-gray-900`}>
-      <SessionWrapper>
+      <SessionProvider>
         <ThemeProvider>
           <SidebarProvider>{children}</SidebarProvider>
         </ThemeProvider>
-        </SessionWrapper>
+        </SessionProvider>
       </body>
     </html>
   );
