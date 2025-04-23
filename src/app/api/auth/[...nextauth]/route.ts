@@ -18,7 +18,7 @@ const handler = NextAuth({
     ],
     callbacks: {
         async signIn({ user}) {
-          if (user.email?.includes(process.env.EMAIL as string)) {
+          if (user.email?.includes(process.env.NEXTAUTH_EMAIL as string)) {
             return true;
           } else {
             return false;
