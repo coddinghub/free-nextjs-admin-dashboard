@@ -4,15 +4,15 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { useSession, signIn, signOut } from "next-auth/react"
+import { useSession,signOut } from "next-auth/react"
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
 
-  const handleLogout = (e) => {
+  const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault(); // 阻止 Link 的默认跳转行为
-    signOut({ callbackUrl: "/" }); // 调用登出方法
+    signOut({ callbackUrl: "/" }); // 調用登出方法
   };
 
 function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {

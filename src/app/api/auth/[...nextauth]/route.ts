@@ -17,14 +17,14 @@ const handler = NextAuth({
         //   })
     ],
     callbacks: {
-        async signIn({ user, account, profile }) {
+        async signIn({ user}) {
           if (user.email?.includes("sam.sys.hk@gmail.com")) {
             return true;
           } else {
             return false;
           }
         },
-        async redirect({ url, baseUrl }) {
+        async redirect({ }) {
           return "/";
         },
       },
