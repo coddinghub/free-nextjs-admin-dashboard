@@ -80,7 +80,7 @@ export default function RecentOrders() {
       const result: { message: string } = await response.json();
       setStatus(result.message);
     } catch (error) {
-      setStatus('Error occurred');
+      setStatus(`Error occurred ${error}`);
     }
   };
   return (

@@ -15,7 +15,6 @@ export async function GET() {
   try {
     const page = await browser.newPage();
     await page.goto(TARGET_WEBSITE);
-    const title = await page.title();
 
     return NextResponse.json({ message: `Success.` }, { status: 200 });
   } catch (error: unknown) {
