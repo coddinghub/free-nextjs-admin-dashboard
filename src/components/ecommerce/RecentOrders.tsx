@@ -9,6 +9,8 @@ import {
 import Badge from "../ui/badge/Badge";
 import Image from "next/image";
 import { useState } from 'react';
+import Button from "@/components/ui/button/Button";
+import { BoxIcon } from "@/icons";
 
 // Define the TypeScript interface for the table rows
 interface Product {
@@ -72,15 +74,22 @@ const tableData: Product[] = [
 ];
 
 export default function RecentOrders() {
-  const [status, setStatus] = useState<string>('Not started');
-  const handleClick = async () => {
-    setStatus('Processing...');
+  const [status, setStatus] = useState<string>('');
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const tv = async (act:string) => {
+    setIsButtonDisabled(true);
     try {
-      const response = await fetch('/api/linksys', { method: 'GET' });
+      const params = new URLSearchParams({
+        action: act,
+      });
+      setStatus(act==='block'? 'Locking...':'Unlocking...');
+      const response = await fetch(`/api/tv?${params}`, { method: 'GET' });
       const result: { message: string } = await response.json();
       setStatus(result.message);
     } catch (error) {
       setStatus(`Error occurred ${error}`);
+    }finally{
+      setIsButtonDisabled(false);
     }
   };
   return (
@@ -88,7 +97,7 @@ export default function RecentOrders() {
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Recent Orders: {status}
+            TV Status: {status}
           </h3>
         </div>
 
@@ -131,9 +140,18 @@ export default function RecentOrders() {
             </svg>
             Filter
           </button>
-          <button onClick={handleClick} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
-            TV
-          </button>
+          {/* <button disabled={isButtonDisabled} onClick={() => tv('block')} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
+            Block TV
+          </button> */}
+          <Button disabled={isButtonDisabled} onClick={() => tv('block')} size="sm" variant="primary" startIcon={<BoxIcon />}>
+            Lock TV
+          </Button>
+          <Button disabled={isButtonDisabled} onClick={() => tv('unblock')} size="sm" variant="primary" startIcon={<BoxIcon />}>
+            Unlock TV
+          </Button>          
+          {/* <button disabled={isButtonDisabled} onClick={() => tv('unblock')} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
+            Unblock TV
+          </button>           */}
         </div>
       </div>
       <div className="max-w-full overflow-x-auto">

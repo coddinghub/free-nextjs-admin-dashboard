@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  allowedDevOrigins: ['admin.samws.net'],
+  allowedDevOrigins: ['samws.net'],
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
