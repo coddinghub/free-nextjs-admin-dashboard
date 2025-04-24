@@ -14,7 +14,7 @@ import {
   // PageIcon,
   PieChartIcon,
   // PlugInIcon,
-  // TableIcon,
+  TableIcon,
   // UserCircleIcon,
 } from "../icons/index";
 // import SidebarWidget from "./SidebarWidget";
@@ -48,11 +48,11 @@ const navItems: NavItem[] = [
     icon: <ListIcon />,
     subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
   },
-  // {
-  //   name: "Tables",
-  //   icon: <TableIcon />,
-  //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  // },
+  {
+    name: "Tables",
+    icon: <TableIcon />,
+    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+  },
   // {
   //   name: "Pages",
   //   icon: <PageIcon />,
