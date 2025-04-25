@@ -8,110 +8,11 @@ import {
 } from "../ui/table";
 
 import Badge from "../ui/badge/Badge";
-import Image from "next/image";
+// import Image from "next/image";
+// import { Elsie } from "next/font/google";
+import { StockData } from "@/types/StockType";
 
-interface Order {
-  id: number;
-  user: {
-    image: string;
-    name: string;
-    role: string;
-  };
-  projectName: string;
-  team: {
-    images: string[];
-  };
-  status: string;
-  budget: string;
-}
-
-// Define the table data using the interface
-const tableData: Order[] = [
-  {
-    id: 1,
-    user: {
-      image: "/images/user/user-17.jpg",
-      name: "Lindsey Curtis",
-      role: "Web Designer",
-    },
-    projectName: "Agency Website",
-    team: {
-      images: [
-        "/images/user/user-22.jpg",
-        "/images/user/user-23.jpg",
-        "/images/user/user-24.jpg",
-      ],
-    },
-    budget: "3.9K",
-    status: "Active",
-  },
-  {
-    id: 2,
-    user: {
-      image: "/images/user/user-18.jpg",
-      name: "Kaiya George",
-      role: "Project Manager",
-    },
-    projectName: "Technology",
-    team: {
-      images: ["/images/user/user-25.jpg", "/images/user/user-26.jpg"],
-    },
-    budget: "24.9K",
-    status: "Pending",
-  },
-  {
-    id: 3,
-    user: {
-      image: "/images/user/user-17.jpg",
-      name: "Zain Geidt",
-      role: "Content Writing",
-    },
-    projectName: "Blog Writing",
-    team: {
-      images: ["/images/user/user-27.jpg"],
-    },
-    budget: "12.7K",
-    status: "Active",
-  },
-  {
-    id: 4,
-    user: {
-      image: "/images/user/user-20.jpg",
-      name: "Abram Schleifer",
-      role: "Digital Marketer",
-    },
-    projectName: "Social Media",
-    team: {
-      images: [
-        "/images/user/user-28.jpg",
-        "/images/user/user-29.jpg",
-        "/images/user/user-30.jpg",
-      ],
-    },
-    budget: "2.8K",
-    status: "Cancel",
-  },
-  {
-    id: 5,
-    user: {
-      image: "/images/user/user-21.jpg",
-      name: "Carla George",
-      role: "Front-end Developer",
-    },
-    projectName: "Website",
-    team: {
-      images: [
-        "/images/user/user-31.jpg",
-        "/images/user/user-32.jpg",
-        "/images/user/user-33.jpg",
-      ],
-    },
-    budget: "4.5K",
-    status: "Active",
-  },
-];
-
-export default function BasicTableOne() {
+export default function BasicTableOne({data}: {data: StockData[] | null}) {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
       <div className="max-w-full overflow-x-auto">
@@ -124,65 +25,79 @@ export default function BasicTableOne() {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  User
+                  Symbol
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  Project Name
+                  Today&#39;s P/L
+                </TableCell>                
+                <TableCell
+                  isHeader
+                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  Price/Cost
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  Team
+                  MV/QTY
                 </TableCell>
                 <TableCell
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  Status
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  Budget
+                 P/L
                 </TableCell>
               </TableRow>
             </TableHeader>
 
             {/* Table Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {tableData.map((order) => (
-                <TableRow key={order.id}>
+              {data?.map((order) => (
+                <TableRow key={order.code}>
                   <TableCell className="px-5 py-4 sm:px-6 text-start">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 overflow-hidden rounded-full">
+                      {/* <div className="w-10 h-10 overflow-hidden rounded-full">
                         <Image
                           width={40}
                           height={40}
                           src={order.user.image}
                           alt={order.user.name}
                         />
-                      </div>
+                      </div> */}
                       <div>
                         <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                          {order.user.name}
+                          {order.code}
                         </span>
                         <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
-                          {order.user.role}
+                          {order.name}
                         </span>
                       </div>
                     </div>
                   </TableCell>
+                  {/* Today's P/L */}
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {order.projectName}
+                    <Badge
+                      size="sm"
+                      color={
+                        (order.last_price-order.prev_close_price) > 0
+                          ? "success"
+                          :(order.last_price-order.prev_close_price) < 0 
+                          ? "error"
+                          : "warning"
+                      }
+                    >
+                     {((order.last_price-order.prev_close_price)*order.buy_in_number).toFixed(2)} <br />
+                     ({((order.last_price-order.prev_close_price)/order.prev_close_price*100).toFixed(2) +'%'} )
+                    </Badge>
                   </TableCell>
+                  {/* Price/Cost */}
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    <div className="flex -space-x-2">
-                      {order.team.images.map((teamImage, index) => (
+                    <div>
+                      {/* {order.team.images.map((teamImage, index) => (
                         <div
                           key={index}
                           className="w-6 h-6 overflow-hidden border-2 border-white rounded-full dark:border-gray-900"
@@ -195,25 +110,41 @@ export default function BasicTableOne() {
                             className="w-full"
                           />
                         </div>
-                      ))}
+                      ))} */}
+                      <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                          {order.last_price}
+                        </span>
+                        <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
+                          {order.buy_in_price}
+                        </span>
                     </div>
                   </TableCell>
+                  {/* MV/QTY */}
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    <div>
+                        <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                          {(order.buy_in_price*order.buy_in_number).toFixed(2)}
+                        </span>
+                        <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
+                          {order.buy_in_number}
+                        </span>
+                      </div>
+                  </TableCell>                  
+                  {/* P/L */}
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <Badge
                       size="sm"
                       color={
-                        order.status === "Active"
+                        (order.last_price-order.buy_in_price) > 0
                           ? "success"
-                          : order.status === "Pending"
-                          ? "warning"
-                          : "error"
+                          :(order.last_price-order.buy_in_price) < 0 
+                          ? "error"
+                          : "warning"
                       }
                     >
-                      {order.status}
+                     {((order.last_price-order.buy_in_price)*order.buy_in_number).toFixed(2)} <br />
+                     ({((order.last_price-order.buy_in_price)/order.buy_in_price*100).toFixed(2) +'%'} )
                     </Badge>
-                  </TableCell>
-                  <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {order.budget}
                   </TableCell>
                 </TableRow>
               ))}
