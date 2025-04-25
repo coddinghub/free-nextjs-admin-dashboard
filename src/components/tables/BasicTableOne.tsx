@@ -31,7 +31,7 @@ export default function BasicTableOne({data}: {data: StockData[] | null}) {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                  Today&#39;s P/L
+                  Today P/L
                 </TableCell>                
                 <TableCell
                   isHeader
@@ -49,7 +49,7 @@ export default function BasicTableOne({data}: {data: StockData[] | null}) {
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >
-                 P/L
+                 Holding P/L
                 </TableCell>
               </TableRow>
             </TableHeader>
