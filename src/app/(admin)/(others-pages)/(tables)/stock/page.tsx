@@ -64,12 +64,12 @@ export default function BasicTables() {
   }, [data]); // 依赖 data，确保深比较生效
 
   // 计算标题
-  const getTitle = () => {
-    if (profitOrLoss === null) {
-      return "Loading...";
-    }
-    return `Today P/L: ${profitOrLoss.toFixed(2)} | Position P/L:`;
-  };
+  // const getTitle = () => {
+  //   if (profitOrLoss === null) {
+  //     return "Loading...";
+  //   }
+  //   return `Today P/L: ${profitOrLoss.toFixed(2)} | Position P/L:`;
+  // };
 
   return (
     <div>

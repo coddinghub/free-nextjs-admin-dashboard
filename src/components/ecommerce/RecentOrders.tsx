@@ -7,75 +7,22 @@ import {
   TableRow,
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
-import Image from "next/image";
-import { useState } from 'react';
+// import Image from "next/image";
+import { useState,useEffect } from 'react';
 import Button from "@/components/ui/button/Button";
 import { BoxIcon } from "@/icons";
-
-// Define the TypeScript interface for the table rows
-interface Product {
-  id: number; // Unique identifier for each product
-  name: string; // Product name
-  variants: string; // Number of variants (e.g., "1 Variant", "2 Variants")
-  category: string; // Category of the product
-  price: string; // Price of the product (as a string with currency symbol)
-  // status: string; // Status of the product
-  image: string; // URL or path to the product image
-  status: "Delivered" | "Pending" | "Canceled"; // Status of the product
-}
-
-// Define the table data using the interface
-const tableData: Product[] = [
-  {
-    id: 1,
-    name: "MacBook Pro 13”",
-    variants: "2 Variants",
-    category: "Laptop",
-    price: "$2399.00",
-    status: "Delivered",
-    image: "/images/product/product-01.jpg", // Replace with actual image URL
-  },
-  {
-    id: 2,
-    name: "Apple Watch Ultra",
-    variants: "1 Variant",
-    category: "Watch",
-    price: "$879.00",
-    status: "Pending",
-    image: "/images/product/product-02.jpg", // Replace with actual image URL
-  },
-  {
-    id: 3,
-    name: "iPhone 15 Pro Max",
-    variants: "2 Variants",
-    category: "SmartPhone",
-    price: "$1869.00",
-    status: "Delivered",
-    image: "/images/product/product-03.jpg", // Replace with actual image URL
-  },
-  {
-    id: 4,
-    name: "iPad Pro 3rd Gen",
-    variants: "2 Variants",
-    category: "Electronics",
-    price: "$1699.00",
-    status: "Canceled",
-    image: "/images/product/product-04.jpg", // Replace with actual image URL
-  },
-  {
-    id: 5,
-    name: "AirPods Pro 2nd Gen",
-    variants: "1 Variant",
-    category: "Accessories",
-    price: "$240.00",
-    status: "Delivered",
-    image: "/images/product/product-05.jpg", // Replace with actual image URL
-  },
-];
+import { StockData } from "@/types/StockType";
+import { stockConfig } from "../../../stockConfig";
+import { isWithinTradingHours } from "@/utils/timeUtils";
 
 export default function RecentOrders() {
   const [status, setStatus] = useState<string>('');
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
+  const [data, setData] = useState<StockData[] | null>(null);
+  const [profitOrLoss, setProfitOrLoss] = useState<number | null>(null);
+  const [totalProfitOrLoss, setTotalProfitOrLoss] = useState<number | null>(null);  
+
   const tv = async (act:string) => {
     setIsButtonDisabled(true);
     try {
@@ -92,17 +39,65 @@ export default function RecentOrders() {
       setIsButtonDisabled(false);
     }
   };
+
+  useEffect(() => {
+    // 定义 fetchData 函数
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/futu");
+        if (!response.ok) {
+          throw new Error(`API request failed with status: ${response.status}`);
+        }
+
+        const result: StockData[] = await response.json();
+        let todayPL = 0;
+        let totalPL = 0;
+
+        // 更新数据并计算盈亏
+        result.forEach((item) => {
+          const config = stockConfig[item.code];
+          if (config) {
+            item.buy_in_price = config.buy_in_price;
+            item.buy_in_number = config.buy_in_number;
+          }
+          todayPL += (item.last_price - item.prev_close_price) * (item.buy_in_number || 0);
+          totalPL += (item.last_price - item.buy_in_price) * (item.buy_in_number || 0);
+        });
+
+        // 深比较：只有当数据变化时才更新状态
+        if (JSON.stringify(result) !== JSON.stringify(data)) {
+          setData(result);
+        }
+        setProfitOrLoss(todayPL);
+        setTotalProfitOrLoss(totalPL)
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+
+    const intervalId = setInterval(() => {
+      if (isWithinTradingHours()) {
+        fetchData();
+      }
+    }, 3000);
+
+    return () => clearInterval(intervalId); // 清除定时器
+  }, [data]); // 依赖 data，确保深比较生效  
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            TV Status: {status}
+          Today P/L: <Badge color={profitOrLoss !== null && profitOrLoss > 0?"success":"error"}>${profitOrLoss?.toFixed(2)}</Badge>  P/L:
+          <Badge color={totalProfitOrLoss !== null && totalProfitOrLoss > 0?"success":"error"}>${totalProfitOrLoss?.toFixed(2)}</Badge> 
+          {status}
           </h3>
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
+          {/* <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
             <svg
               className="stroke-current fill-white dark:fill-gray-800"
               width="20"
@@ -139,7 +134,7 @@ export default function RecentOrders() {
               />
             </svg>
             Filter
-          </button>
+          </button> */}
           {/* <button disabled={isButtonDisabled} onClick={() => tv('block')} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
             Block TV
           </button> */}
@@ -163,37 +158,43 @@ export default function RecentOrders() {
                 isHeader
                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
-                Products
+                Symbol
               </TableCell>
               <TableCell
                 isHeader
                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
-                Category
+                Today P/L
               </TableCell>
               <TableCell
                 isHeader
                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
-                Price
+                Price/Cost
               </TableCell>
               <TableCell
                 isHeader
                 className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
               >
-                Status
+                MV/QTY
               </TableCell>
+              <TableCell
+                isHeader
+                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+              >
+                Holding P/L
+              </TableCell>              
             </TableRow>
           </TableHeader>
 
           {/* Table Body */}
 
           <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {tableData.map((product) => (
-              <TableRow key={product.id} className="">
+            {data?.map((order) => (
+              <TableRow key={order.code} className="">
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
-                    <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
+                    {/* <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
                       <Image
                         width={50}
                         height={50}
@@ -201,37 +202,64 @@ export default function RecentOrders() {
                         className="h-[50px] w-[50px]"
                         alt={product.name}
                       />
-                    </div>
+                    </div> */}
                     <div>
-                      <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {product.name}
-                      </p>
-                      <span className="text-gray-500 text-theme-xs dark:text-gray-400">
-                        {product.variants}
-                      </span>
+                    <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                          {order.code}
+                        </span>
+                        <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
+                          {order.name}
+                        </span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.price}
+                <Badge
+                      size="sm"
+                      color={
+                        (order.last_price-order.prev_close_price) > 0
+                          ? "success"
+                          :(order.last_price-order.prev_close_price) < 0 
+                          ? "error"
+                          : "warning"
+                      }
+                    >
+                     {((order.last_price-order.prev_close_price)*order.buy_in_number).toFixed(2)} <br />
+                     ({((order.last_price-order.prev_close_price)/order.prev_close_price*100).toFixed(2) +'%'} )
+                    </Badge>
                 </TableCell>
                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.category}
+                  <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                          {order.last_price}
+                        </span>
+                        <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
+                          {order.buy_in_price}
+                        </span>
                 </TableCell>
                 <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <Badge
-                    size="sm"
-                    color={
-                      product.status === "Delivered"
-                        ? "success"
-                        : product.status === "Pending"
-                        ? "warning"
-                        : "error"
-                    }
-                  >
-                    {product.status}
-                  </Badge>
+                <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                          {(order.buy_in_price*order.buy_in_number).toFixed(2)}
+                        </span>
+                        <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
+                          {order.buy_in_number}
+                        </span>
                 </TableCell>
+                  {/* P/L */}
+                  <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    <Badge
+                      size="sm"
+                      color={
+                        (order.last_price-order.buy_in_price) > 0
+                          ? "success"
+                          :(order.last_price-order.buy_in_price) < 0 
+                          ? "error"
+                          : "warning"
+                      }
+                    >
+                     {((order.last_price-order.buy_in_price)*order.buy_in_number).toFixed(2)} <br />
+                     ({((order.last_price-order.buy_in_price)/order.buy_in_price*100).toFixed(2) +'%'} )
+                    </Badge>
+                  </TableCell>                
               </TableRow>
             ))}
           </TableBody>
