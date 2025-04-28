@@ -13,7 +13,7 @@ import Button from "@/components/ui/button/Button";
 import { BoxIcon } from "@/icons";
 import { StockData } from "@/types/StockType";
 import { stockConfig } from "../../../stockConfig";
-import { isWithinTradingHours } from "@/utils/timeUtils";
+import { isWithinAmTradingHours,isWithinPmTradingHours } from "@/utils/timeUtils";
 
 export default function RecentOrders() {
   const [status, setStatus] = useState<string>('');
@@ -78,13 +78,13 @@ export default function RecentOrders() {
     fetchData();
 
     const intervalId = setInterval(() => {
-      if (isWithinTradingHours()) {
+      if (isWithinAmTradingHours() || isWithinPmTradingHours()) {
         fetchData();
       }
     }, 3000);
 
     return () => clearInterval(intervalId); // 清除定时器
-  }, [data]); // 依赖 data，确保深比较生效  
+  }, []); 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">

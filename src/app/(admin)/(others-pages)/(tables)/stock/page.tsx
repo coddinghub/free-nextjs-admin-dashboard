@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { StockData } from "@/types/StockType";
 import { stockConfig } from "../../../../../../stockConfig";
 import React from "react";
-import { isWithinTradingHours } from "@/utils/timeUtils";
+import { isWithinAmTradingHours,isWithinPmTradingHours } from "@/utils/timeUtils";
 import Badge from "@/components/ui/badge/Badge";
 
 // 使用 React.memo 包装 BasicTableOne，避免不必要的重新渲染
@@ -55,7 +55,7 @@ export default function BasicTables() {
     fetchData();
 
     const intervalId = setInterval(() => {
-      if (isWithinTradingHours()) {
+      if (isWithinAmTradingHours() || isWithinPmTradingHours()) {
         fetchData();
       }
     }, 3000);
